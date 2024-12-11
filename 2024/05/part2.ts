@@ -12,45 +12,16 @@ class Rule {
   }
 }
 
-
-
-// https://stackoverflow.com/a/2450976
-function shuffle<T>(arr: T[]) {
-  const array = [...arr];
-  let currentIndex = array.length;
-
-  while (currentIndex != 0) {
-    const randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
-  }
-  return array;
-}
-
-function correctUpdate(update: number[], rules: Rule[], i: number, t: number) {
-  console.log(`bruteforcing ${i}/${t}`)
-
-  let correctUpdate;
-  // permutations(update).forEach((possiblyCorrectUpdate) => {
-  //   rules.forEach((rule) => {
-  //     const check = rule.check(possiblyCorrectUpdate);
-  //     if (check === true) correctUpdate = possiblyCorrectUpdate;
-  //   });
-  // });
-  while (!correctUpdate) {
-    const randomized = shuffle(update);
-    let correct = true;
+function correctUpdate(update: number[], rules: Rule[]) {
+  return update.sort((a, b) => {
+    let abidesAll = true;
     rules.forEach((rule) => {
-      const check = rule.check(randomized);
-      if (check === false) correct = false;
+      const abides = rule.check([a, b]);
+      if (!abides) abidesAll = false;
     });
-    if (correct === true) correctUpdate = randomized;
-  }
-  return correctUpdate;
+    if (abidesAll) return -1;
+    else return 1;
+  });
 }
 
 function main(input: string) {
@@ -74,7 +45,7 @@ function main(input: string) {
       else return update;
     })
     .filter((update) => update !== null)
-    .map((update, i, a) => correctUpdate(update, rules, i, a.length))
+    .map((update) => correctUpdate(update, rules))
     .map((update) => update[Math.floor(update.length / 2)]);
   let num = 0;
 
